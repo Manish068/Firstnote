@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:gravity="center">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:textSize="25sp"
+            android:textColor="@color/colorPrimary"
+            android:text="Login" />
+
+
+
+        <EditText
+            android:id="@+id/edittext_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email"
+            android:gravity="center"
+            android:textColorHint="@color/hint_color"
+            android:textColor="@color/black"
+            android:textSize="15sp"/>
+        <EditText
+            android:id="@+id/edittext_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:textColorHint="@color/hint_color"
+            android:textColor="@color/black"
+            android:textSize="15sp"/>
+
+        <Button
+            android:id="@+id/button_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Login"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/white"
+            android:textSize="18sp"/>
+        <TextView
+            android:id="@+id/text_signup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textColor="@color/colorAccent"
+            android:text="Create new Account. Sign up" />
+    </LinearLayout>
+</LinearLayout>
