@@ -14,6 +14,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.manish.firstnote.Data.Userinfo;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -31,6 +35,7 @@ public class SignupActivity extends AppCompatActivity {
 
     FirebaseAuth firebaseAuth;
     ProgressDialog progressDialog;
+    DatabaseReference databaseUsers;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,7 +44,8 @@ public class SignupActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        progressDialog=new ProgressDialog(this);
+        databaseUsers = FirebaseDatabase.getInstance().getReference("USERS");
+        progressDialog = new ProgressDialog(this);
     }
 
     @OnClick(R.id.button_signup)
@@ -70,12 +76,28 @@ public class SignupActivity extends AppCompatActivity {
     public void registerUser(String name, String email, String password) {
         progressDialog.setMessage("please wait...");
         progressDialog.show();
+        //here we are creating a user for login
         firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                progressDialog.dismiss();
+
                 if (task.isSuccessful()) {
-                    Toast.makeText(SignupActivity.this, "User is registered succesfully", Toast.LENGTH_SHORT).show();
+                    //save user information to data base
+                    FirebaseUser currentuser = firebaseAuth.getCurrentUser(); //getting the user current login user information
+                    String uid = currentuser.getUid(); //getting the Uid of the user which is present in firebase authentication section
+                    Userinfo userinfo=new Userinfo(name,email,""); //created new class object to store the information
+
+
+                    databaseUsers.child(uid).setValue(userinfo).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            progressDialog.dismiss();
+                            if(task.isSuccessful()){
+                                Toast.makeText(SignupActivity.this, "User is registered succesfully", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+                        }
+                    });
                 } else {
                     Toast.makeText(SignupActivity.this, "Error registering user", Toast.LENGTH_SHORT).show();
                 }

@@ -51,6 +51,15 @@
             android:textColor="@color/white"
             android:textSize="18sp"/>
         <TextView
+            android:id="@+id/text_forget_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="right"
+            android:textSize="18sp"
+            android:textColor="@color/colorPrimaryDark"
+            android:text="Forget password?" />
+        <TextView
             android:id="@+id/text_signup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -59,5 +68,22 @@
             android:textSize="18sp"
             android:textColor="@color/colorAccent"
             android:text="Create new Account. Sign up" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:text="OR"/>
+        <TextView
+            android:id="@+id/text_otp_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textColor="@color/colorAccent"
+            android:text="Login Using OTP"/>
     </LinearLayout>
 </LinearLayout>
