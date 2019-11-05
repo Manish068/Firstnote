@@ -1,7 +1,10 @@
 package com.manish.firstnote;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -36,30 +39,105 @@ public class SignupActivity extends AppCompatActivity {
     FirebaseAuth firebaseAuth;
     ProgressDialog progressDialog;
     DatabaseReference databaseUsers;
-
+    //here now saving the UID because for each user there is some particular data he/she gonna store
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         ButterKnife.bind(this);
 
+        sharedPreferences=getSharedPreferences("FIRENOTESDATA", Context.MODE_PRIVATE);
+        editor=sharedPreferences.edit();
+
         firebaseAuth = FirebaseAuth.getInstance();
         databaseUsers = FirebaseDatabase.getInstance().getReference("USERS");
         progressDialog = new ProgressDialog(this);
+
+        // if login is happening with mobile then password field should be hidden
+        if(getIntent().hasExtra("MOBILE")){
+            edittextSignupPassword.setVisibility(View.GONE);
+        }else{
+            edittextSignupPassword.setVisibility(View.VISIBLE);
+        }
+
     }
 
     @OnClick(R.id.button_signup)
     public void onViewClicked() {
         String name = edittextSignupName.getText().toString();
         String emailid = edittextSignupEmail.getText().toString();
-        String password = edittextSignupPassword.getText().toString();
+        String password = "";
+        if(getIntent().hasExtra("MOBILE")){
+            if(!name.equalsIgnoreCase("")){
+                if(!emailid.equalsIgnoreCase("")){
+                    progressDialog.setMessage("please wait...");
+                    progressDialog.show();
+                    String mobile=getIntent().getExtras().getString("MOBILE");
+                    String uid=getIntent().getExtras().getString("UID");
+                    Userinfo userinfo=new Userinfo(name,emailid,mobile);
+                    databaseUsers.child(uid).setValue(userinfo).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            progressDialog.dismiss();
+                            if(task.isSuccessful()){
+                                editor.putString("UID",uid);
+                                Toast.makeText(SignupActivity.this, "User is registered succesfully", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }else {
+                                Toast.makeText(SignupActivity.this, "Error registering user", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }else{
+                    Toast.makeText(this,"please enter email Id",Toast.LENGTH_SHORT).show();
+                }
+            }else{
+                Toast.makeText(this,"Please enter name",Toast.LENGTH_SHORT).show();
+            }
+        }else{
+            password=edittextSignupPassword.getText().toString();
+            registerUser(name,emailid,password);
+        }
 
+    }
+
+    public void registerUser(String name, String email, String password) {
         if (!name.equalsIgnoreCase("")) {
-            if (!emailid.equalsIgnoreCase("")) {
+            if (!email.equalsIgnoreCase("")) {
                 if (!password.equalsIgnoreCase("")) {
+                    progressDialog.setMessage("please wait...");
+                    progressDialog.show();
+                    //here we are creating a user for login
+                    firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
 
-                    registerUser(name, emailid, password);
+                            if (task.isSuccessful()) {
+                                //save user information to data base
+                                FirebaseUser currentuser = firebaseAuth.getCurrentUser(); //getting the user current login user information
+                                String uid = currentuser.getUid(); //getting the Uid of the user which is present in firebase authentication section
+                                Userinfo userinfo=new Userinfo(name,email,""); //created new class object to store the information
 
+
+                                databaseUsers.child(uid).setValue(userinfo).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        progressDialog.dismiss();
+                                        if(task.isSuccessful()){
+                                            editor.putString("UID",uid);
+                                            editor.commit();
+                                            Toast.makeText(SignupActivity.this, "User is registered succesfully", Toast.LENGTH_SHORT).show();
+                                            finish();
+                                        }
+                                    }
+                                });
+                            } else {
+                                Toast.makeText(SignupActivity.this, "Error registering user", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
                 } else {
                     Toast.makeText(this, "please enter password", Toast.LENGTH_SHORT).show();
                 }
@@ -68,41 +146,6 @@ public class SignupActivity extends AppCompatActivity {
             }
         } else {
             Toast.makeText(this, "please enter name", Toast.LENGTH_SHORT).show();
-
         }
-
-    }
-
-    public void registerUser(String name, String email, String password) {
-        progressDialog.setMessage("please wait...");
-        progressDialog.show();
-        //here we are creating a user for login
-        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-
-                if (task.isSuccessful()) {
-                    //save user information to data base
-                    FirebaseUser currentuser = firebaseAuth.getCurrentUser(); //getting the user current login user information
-                    String uid = currentuser.getUid(); //getting the Uid of the user which is present in firebase authentication section
-                    Userinfo userinfo=new Userinfo(name,email,""); //created new class object to store the information
-
-
-                    databaseUsers.child(uid).setValue(userinfo).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            progressDialog.dismiss();
-                            if(task.isSuccessful()){
-                                Toast.makeText(SignupActivity.this, "User is registered succesfully", Toast.LENGTH_SHORT).show();
-                                finish();
-                            }
-                        }
-                    });
-                } else {
-                    Toast.makeText(SignupActivity.this, "Error registering user", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
     }
 }
