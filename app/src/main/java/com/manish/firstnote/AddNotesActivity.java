@@ -40,7 +40,7 @@ public class AddNotesActivity extends AppCompatActivity {
     //for creating a new table in Firebase database
     DatabaseReference databasenotes;
 
-    //for pasing unique userid for eachuser
+    //for pasing unique userid for each user
 
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -72,8 +72,6 @@ public class AddNotesActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-
     }
 
     @OnClick(R.id.button_save_note)
@@ -90,8 +88,8 @@ public class AddNotesActivity extends AppCompatActivity {
         if(!title.equalsIgnoreCase("")){
             if(!desc.equalsIgnoreCase("")){
                 progressDialog.show();
-                //this will generate random unique key for evertime
-                //everytime we are going to save our data and that key also we need to store later we want to edit or delte our notes we use the same key
+                //this will generate random unique key for everytime
+                //everytime we are going to save our data and that key also we need to store later we want to edit or delete our notes we use the same key
                 String key=databasenotes.push().getKey();
                 UserNotes userNotes=new UserNotes(title,desc,todaysDate,key);
                 //we are storing the data in USERNOTES under the child node of key
@@ -116,7 +114,6 @@ public class AddNotesActivity extends AppCompatActivity {
         }else{
             Toast.makeText(this,"Please enter Title",Toast.LENGTH_SHORT).show();
         }
-
 
     }
 }
