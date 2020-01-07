@@ -2,6 +2,7 @@ package com.manish.firstnote;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -82,7 +83,8 @@ public class SignupActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Void> task) {
                             progressDialog.dismiss();
                             if(task.isSuccessful()){
-                                editor.putString("UID",uid);
+                                editor.commit();
+                                startActivity(new Intent(SignupActivity.this,MainActivity.class));
                                 Toast.makeText(SignupActivity.this, "User is registered succesfully", Toast.LENGTH_SHORT).show();
                                 finish();
                             }else {

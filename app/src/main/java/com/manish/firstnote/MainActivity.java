@@ -6,27 +6,27 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.manish.firstnote.Data.UserNotes;
-
 import java.util.ArrayList;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements UpdateInterface{
 
     @BindView(R.id.recycler_all_notes)
     RecyclerView recyclerAllNotes;
+    FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,15 +72,16 @@ public class MainActivity extends AppCompatActivity implements UpdateInterface{
         progressDialog.setMessage("Reading notes..");
         toolbarHome.setTitle("FireNote");
         toolbarHome.setTitleTextColor(Color.WHITE);
+        setSupportActionBar(toolbarHome);
+        auth=FirebaseAuth.getInstance();
 
 
-        String uid = sharedPreferences.getString("UID", "");  //getting the current user id
-        //for reading the data from Firebase database
+        String uid = auth.getUid(); //getting the current user id
+        //for reading the data from Fire base database
         databasenotes = FirebaseDatabase.getInstance().getReference("USERNOTES").child(uid);
 
         linearLayoutManager = new LinearLayoutManager(this);
         recyclerAllNotes.setLayoutManager(linearLayoutManager);
-
 
 
     }
@@ -94,15 +96,13 @@ public class MainActivity extends AppCompatActivity implements UpdateInterface{
     protected void onResume() {
         super.onResume();
         ReadAllnotes();     //whenever we add a particular note and comeback this method will be call
-
     }
 
     // for reading notes
     public void ReadAllnotes() {
         allNoteslist.clear();       // clearing the array list
         progressDialog.show();
-
-        //reading data from firebase
+        //reading data from fire base
         databasenotes.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -140,6 +140,26 @@ public class MainActivity extends AppCompatActivity implements UpdateInterface{
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater=getMenuInflater();
+        inflater.inflate(R.menu.menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menuLayout:
+                FirebaseAuth.getInstance().signOut();
+                clearPreferences();
+                startActivity(new Intent(MainActivity.this,LoginActivity.class));
+                editor.commit();
+                break;
+        }
+        return true;
+    }
+
+    @Override
     public void deleteNote(UserNotes userNotes) {
         //you just need to specify child node id which we want to delete
         databasenotes.child(userNotes.getNoteid()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -149,8 +169,16 @@ public class MainActivity extends AppCompatActivity implements UpdateInterface{
                     Toast.makeText(MainActivity.this,"Note deleted successfully",Toast.LENGTH_SHORT).show();
                     ReadAllnotes();
                 }
-
             }
         });
+    }
+    private void clearPreferences(){
+        try {
+            Runtime runtime=Runtime.getRuntime();
+            runtime.exec("com.manish.firstnote");
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 }

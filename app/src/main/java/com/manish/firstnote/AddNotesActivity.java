@@ -17,6 +17,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.manish.firstnote.Data.UserNotes;
@@ -44,6 +45,7 @@ public class AddNotesActivity extends AppCompatActivity {
 
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+    FirebaseAuth auth;
 
     ProgressDialog progressDialog;
     @Override
@@ -55,7 +57,8 @@ public class AddNotesActivity extends AppCompatActivity {
         editor=sharedPreferences.edit();
         progressDialog=new ProgressDialog(this);
         progressDialog.setMessage("Saving notes..");
-        String userid=sharedPreferences.getString("UID","");
+        auth=FirebaseAuth.getInstance();
+        String userid=auth.getUid();
         //creation of table with name of user notes in firebase database
         //we need to store all the notes in used id only so we add child here for the database reference path
         //whenever we need to store or read the data for a particular user so we get all the information or note from dabasenotes variable

@@ -19,8 +19,6 @@
             android:textColor="@color/colorPrimary"
             android:text="Login" />
 
-
-
         <EditText
             android:id="@+id/edittext_email"
             android:layout_width="match_parent"
